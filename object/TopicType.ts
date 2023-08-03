@@ -1,15 +1,25 @@
 type TopicRequest = {
-    id?: string;
-    title: string;
-    description: string;
-}
+  id?: string;
+  title: string;
+  description: string;
+};
 
 type TopicResponse = {
-    title: string;
-    description: string;
-    id: string;
-}
+  maxPage: number;
+  data: TopicData[];
+};
+
+type TopicData = {
+  title: string;
+  description: string;
+  id: string;
+};
 
 type TopicSearchParams = {
-    id: string;
-}
+  id: string;
+};
+
+type GetTopicsParams = {
+  page: number;
+  pageSize: number;
+};
