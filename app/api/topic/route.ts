@@ -1,6 +1,6 @@
 import { Response } from '@/components/server/Response';
 import connectMongoDB from '@/libs/mongodb';
-import Topic from '@/models/topic';
+import Topic from '@/models/db_topic';
 import { NextResponse } from 'next/server';
 import { NextApiRequest } from 'next/types';
 import url from 'url';
@@ -8,6 +8,7 @@ import url from 'url';
 export async function POST(req: Request) {
   const { title, description } = (await req.json()) as TopicRequest;
   if (!title || !description) return NextResponse.json(Response(400, null), { status: 400 });
+  // return NextResponse.json(Response(400, null), { status: 400 }); // 400錯走axios 200錯走onError
   try {
     await connectMongoDB();
     const _data = await Topic.create({ title, description });
@@ -26,7 +27,12 @@ export async function GET(req: NextApiRequest) {
     await connectMongoDB();
     if (id) {
       const _data = await Topic.findById(id);
-      const result: TopicData = { title: _data.title, description: _data.description, id: _data._id };
+      const result: TopicData = {
+        title: _data.title,
+        description: _data.description,
+        id: _data._id,
+        author: _data.author,
+      };
       return NextResponse.json(Response(200, result), { status: 200 });
     } else {
       const _total = await Topic.find().count();
@@ -39,8 +45,8 @@ export async function GET(req: NextApiRequest) {
         title: item.title,
         description: item.description,
         id: item._id,
+        author: item.author,
       }));
-      console.log({ maxPage, data: result });
       return NextResponse.json(Response(200, { maxPage, data: result }), { status: 200 });
     }
   } catch (err) {

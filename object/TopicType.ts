@@ -13,6 +13,7 @@ type TopicData = {
   title: string;
   description: string;
   id: string;
+  author: string;
 };
 
 type TopicSearchParams = {

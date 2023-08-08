@@ -29,16 +29,16 @@ const PageNation = ({ maxPage, setPage, page }: PageProps) => {
             >
               <path
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
                 d="M5 1 1 5l4 4"
               />
             </svg>
           </button>
         </li>
         {Array.from({ length: maxPage }, (_, i) => i + 1).map((item) => (
-          <li>
+          <li key={item}>
             <button
               onClick={() => setPage(item)}
               className={`z-index-10 flex items-center justify-center px-3 h-8 leading-tight font-bold
@@ -67,9 +67,9 @@ const PageNation = ({ maxPage, setPage, page }: PageProps) => {
             >
               <path
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
                 d="m1 9 4-4-4-4"
               />
             </svg>

@@ -1,9 +1,9 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/component/ui/card';
-import { TopicApi } from '@/protocol/TopicApi';
+import { TopicApi } from '@/protocol/topic/TopicApi';
 import { useAlert } from '@/redux/alert/alertActions';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { memo, useCallback, useState } from 'react';
 import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
@@ -19,19 +19,14 @@ export function CardWithForm({ data }: Props) {
   const quertClient = useQueryClient();
   const [collapsible, setCollapsible] = useState<boolean>(false);
 
-  const deleteMutation = useMutation({
-    mutationFn: () => TopicApi.deleteTopic({ id: data.id }),
-    onSuccess: () => {
-      quertClient.invalidateQueries(['topicList']);
-    },
-  });
+  const deleteMutation = TopicApi.deleteTopic(() => quertClient.invalidateQueries(['topicList']));
 
   const deleteHandler = useCallback(() => {
     setAlert({
       open: true,
       text: 'Would you like to delete this topic?',
       title: 'Waring',
-      ok: () => deleteMutation.mutate(),
+      ok: () => deleteMutation.mutate({ id: data.id }),
     });
   }, []);
 
@@ -40,7 +35,10 @@ export function CardWithForm({ data }: Props) {
       <CardHeader
         className={`${collapsible ? '' : 'pb-0 pt-8'} flex flex-row justify-between items-end transition-all`}
       >
-        <CardTitle>{data.title}</CardTitle>
+        <div className="flex flex-row gap-3 items-end">
+          <CardTitle>{data.title}</CardTitle>
+          <CardTitle className="text-sm">{`-${data.author}`}</CardTitle>
+        </div>
         <div className="flex flex-row gap-2 items-center">
           <div className="flex flex-row items-center" onClick={deleteHandler}>
             <RemoveBtn />
