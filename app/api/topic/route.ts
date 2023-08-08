@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: NextApiRequest) {
   const parsedUrl = await url.parse(req.url || '', true);
-  const { id, page, pageSize } = parsedUrl.query;
+  const { id, page, pageSize, authorId } = parsedUrl.query;
   // return NextResponse.json(Response(400, null), {status: 200}) // 測試走Bad Request 跳Alert
   try {
     await connectMongoDB();
@@ -35,19 +35,48 @@ export async function GET(req: NextApiRequest) {
       };
       return NextResponse.json(Response(200, result), { status: 200 });
     } else {
-      const _total = await Topic.find().count();
-      const maxPage =
-        _total % Number(pageSize) === 0 ? _total / Number(pageSize) : Math.floor(_total / Number(pageSize)) + 1;
-      const _data = await Topic.find()
-        .skip(Number(page) !== 1 ? (Number(page) - 1) * Number(pageSize) : 0)
-        .limit(Number(pageSize));
-      const result: TopicData[] = _data.map((item) => ({
-        title: item.title,
-        description: item.description,
-        id: item._id,
-        author: item.author,
-      }));
-      return NextResponse.json(Response(200, { maxPage, data: result }), { status: 200 });
+      if (authorId) {
+        const test = Topic.aggregate([
+          {
+            $lookup: {
+              from: 'authors',
+              localField: 'author',
+              foreignField: 'name',
+              as: 'authorInfo',
+            },
+          },
+        ]);
+        const _data = await test.exec();
+        const allFilterData = _data.filter((item) => item.authorInfo[0]?._id.toString() === authorId);
+        const filteredData = _data
+          .filter((item) => item.authorInfo[0]?._id.toString() === authorId)
+          .slice(Number(page) !== 1 ? (Number(page) - 1) * Number(pageSize) : 0, Number(page) * Number(pageSize));
+        const maxPage =
+          allFilterData.length % Number(pageSize) === 0
+            ? allFilterData.length / Number(pageSize)
+            : Math.floor(allFilterData.length / Number(pageSize)) + 1;
+        const result: TopicData[] = filteredData.map((item: any) => ({
+          title: item.title,
+          description: item.description,
+          id: item._id,
+          author: item.author,
+        }));
+        return NextResponse.json(Response(200, { maxPage, data: result }), { status: 200 });
+      } else {
+        const _total = await Topic.find().count();
+        const maxPage =
+          _total % Number(pageSize) === 0 ? _total / Number(pageSize) : Math.floor(_total / Number(pageSize)) + 1;
+        const _data = await Topic.find()
+          .skip(Number(page) !== 1 ? (Number(page) - 1) * Number(pageSize) : 0)
+          .limit(Number(pageSize));
+        const result: TopicData[] = _data.map((item) => ({
+          title: item.title,
+          description: item.description,
+          id: item._id,
+          author: item.author,
+        }));
+        return NextResponse.json(Response(200, { maxPage, data: result }), { status: 200 });
+      }
     }
   } catch (err) {
     console.log(err);

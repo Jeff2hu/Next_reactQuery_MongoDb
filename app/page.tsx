@@ -9,13 +9,14 @@ import { QueryOptions } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export default function Home() {
-  const [selectedAuthor, setSelectedAuthor] = useState<number>(0);
-  const [selected2, setSelected2] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
+  const [selectedAuthor, setSelectedAuthor] = useState<string>('');
+
   const { data: authorData, ...authorStatus } = AuthorApi.getAuthors({ refetchOnMount: false } as QueryOptions);
   const { data: topicData, ...topicStatus } = TopicApi.getTopics({
     page: page,
-    pageSize: 5,
+    pageSize: 2,
+    ...(selectedAuthor && { authorId: selectedAuthor }),
   });
 
   return (
@@ -35,9 +36,9 @@ export default function Home() {
           {authorData && (
             <div className="flex flex-row gap-3 items-end h-full w-[200px]">
               <Select
-                options={authorData}
-                value={selectedAuthor.toString()}
-                onChange={(_value: string) => setSelectedAuthor(Number(_value))}
+                options={[{ text: 'All', value: '' }, ...authorData]}
+                value={selectedAuthor}
+                onChange={(_value: string) => setSelectedAuthor(_value)}
                 placeholder="placeholder..."
               />
             </div>

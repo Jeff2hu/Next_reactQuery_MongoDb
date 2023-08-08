@@ -20,7 +20,7 @@ export class TopicApi {
 
   public static getTopics(params: GetTopicsParams, options?: QueryOptions) {
     const result: UseQueryResult<TopicResponse, unknown> = useQuery(
-      TopicKey.TOPIC_LIST(params.page),
+      TopicKey.TOPIC_LIST(params.page, params.authorId),
       async (): Promise<TopicResponse | undefined> => {
         const response: AxiosResponse<ApiResponse<TopicResponse>> = await axios.get(TopicProtocol.TOPIC, { params });
         const { code, message, data }: ApiResponse<TopicResponse> = response.data;

@@ -23,4 +23,5 @@ type TopicSearchParams = {
 type GetTopicsParams = {
   page: number;
   pageSize: number;
+  authorId?: string;
 };
