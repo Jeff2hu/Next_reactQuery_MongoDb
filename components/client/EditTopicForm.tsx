@@ -44,18 +44,6 @@ const EditTopicForm = ({ id }: Props) => {
     },
   );
 
-  // const editMutation = useMutation({
-  //   mutationFn: editHandler,
-  // onSuccess: () => {
-  //   router.push('/');
-  //   queryClient.invalidateQueries(['topicList']);
-  // },
-  // onError: (err) => {
-  //   console.log('useMutation err', err);
-  //   setAlert({ title: 'Add Topic Error', text: typeof err === 'string' ? err : 'Add Topic Error', open: true });
-  // },
-  // });
-
   return (
     <div>
       {TopicStatus.isLoading ? (

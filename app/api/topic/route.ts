@@ -1,6 +1,7 @@
 import { Response } from '@/components/server/Response';
 import connectMongoDB from '@/libs/mongodb';
 import Topic from '@/models/db_topic';
+import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 import { NextApiRequest } from 'next/types';
 import url from 'url';
@@ -45,16 +46,20 @@ export async function GET(req: NextApiRequest) {
               as: 'authorInfo',
             },
           },
+          {
+            $match: {
+              $or: [{ 'authorInfo._id': new mongoose.Types.ObjectId(authorId as string) }],
+            },
+          },
         ]);
         const _data = await test.exec();
-        const allFilterData = _data.filter((item) => item.authorInfo[0]?._id.toString() === authorId);
         const filteredData = _data
           .filter((item) => item.authorInfo[0]?._id.toString() === authorId)
           .slice(Number(page) !== 1 ? (Number(page) - 1) * Number(pageSize) : 0, Number(page) * Number(pageSize));
         const maxPage =
-          allFilterData.length % Number(pageSize) === 0
-            ? allFilterData.length / Number(pageSize)
-            : Math.floor(allFilterData.length / Number(pageSize)) + 1;
+          _data.length % Number(pageSize) === 0
+            ? _data.length / Number(pageSize)
+            : Math.floor(_data.length / Number(pageSize)) + 1;
         const result: TopicData[] = filteredData.map((item: any) => ({
           title: item.title,
           description: item.description,

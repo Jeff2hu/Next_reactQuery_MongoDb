@@ -36,7 +36,7 @@ export default function Home() {
           {authorData && (
             <div className="flex flex-row gap-3 items-end h-full w-[200px]">
               <Select
-                options={[{ text: 'All', value: '' }, ...authorData]}
+                options={[{ text: 'Please Select - - -', value: '' }, ...authorData]}
                 value={selectedAuthor}
                 onChange={(_value: string) => setSelectedAuthor(_value)}
                 placeholder="placeholder..."
