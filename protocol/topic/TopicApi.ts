@@ -19,23 +19,27 @@ export class TopicApi {
   //   }
 
   public static getTopics(params: GetTopicsParams, options?: QueryOptions) {
+    const getTopicList = async (params: GetTopicsParams, signal?: AbortSignal): Promise<TopicResponse | undefined> => {
+      const response: AxiosResponse<ApiResponse<TopicResponse>> = await axios.get(TopicProtocol.TOPIC, {
+        params,
+        signal,
+      });
+      const { code, message, data }: ApiResponse<TopicResponse> = response.data;
+      if (code === 200 && data) return data;
+      else {
+        store.dispatch(alertSlice.actions.setAlert({ open: true, title: 'Error Message!', text: message }));
+        return undefined;
+      }
+    };
     const result: UseQueryResult<TopicResponse, unknown> = useQuery(
       TopicKey.TOPIC_LIST(params.page, params.authorId),
-      async (): Promise<TopicResponse | undefined> => {
-        const response: AxiosResponse<ApiResponse<TopicResponse>> = await axios.get(TopicProtocol.TOPIC, { params });
-        const { code, message, data }: ApiResponse<TopicResponse> = response.data;
-        if (code === 200 && data) return data;
-        else {
-          store.dispatch(alertSlice.actions.setAlert({ open: true, title: 'Error Message!', text: message }));
-          return undefined;
-        }
-      },
+      ({ signal }) => getTopicList(params, signal),
       {
         keepPreviousData: true,
         ...options,
       },
     );
-    return result;
+    return { result, getTopicList };
   }
 
   public static getTopicBySearch(

@@ -12,9 +12,10 @@ import RemoveBtn from './RemoveBtn';
 
 interface Props {
   data: TopicData;
+  page: number;
 }
 
-export function CardWithForm({ data }: Props) {
+export function CardWithForm({ data, page }: Props) {
   const { setAlert } = useAlert();
   const quertClient = useQueryClient();
   const [collapsible, setCollapsible] = useState<boolean>(false);
@@ -43,7 +44,7 @@ export function CardWithForm({ data }: Props) {
           <div className="flex flex-row items-center" onClick={deleteHandler}>
             <RemoveBtn />
           </div>
-          <Link href={`/editTopic/${data.id}`}>
+          <Link href={`/editTopic/${page}/${data.id}`}>
             <HiPencilAlt size={24} />
           </Link>
           {collapsible ? (

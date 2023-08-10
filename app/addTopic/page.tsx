@@ -20,7 +20,7 @@ const AddTopic = () => {
     (data) => {
       if (!data) return;
       queryClient.setQueryData(TopicKey.TOPIC(data.id), data);
-      router.push(`/editTopic/${data.id}`);
+      router.push(`/`);
     },
     (err) => {
       setAlert({ title: 'Add Topic Error', text: typeof err === 'string' ? err : 'Add Topic Error', open: true });

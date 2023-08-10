@@ -1,6 +1,7 @@
 'use client';
 
 import { TopicApi } from '@/protocol/topic/TopicApi';
+import { TopicKey } from '@/protocol/topic/TopicKey';
 import { useAlert } from '@/redux/alert/alertActions';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -10,12 +11,13 @@ import Input from './Input';
 
 interface Props {
   id: string;
+  page: string;
 }
 
-const EditTopicForm = ({ id }: Props) => {
+const EditTopicForm = ({ id, page }: Props) => {
   const router = useRouter();
-  const { setAlert } = useAlert();
   const queryClient = useQueryClient();
+  const { setAlert } = useAlert();
 
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -28,15 +30,34 @@ const EditTopicForm = ({ id }: Props) => {
     [title, description, id],
   );
 
-  const { data: TopicData, ...TopicStatus } = TopicApi.getTopicBySearch({ id }, (data) => {
-    setTitle(data.title);
-    setDescription(data.description);
-  });
+  const { data: TopicData, ...TopicStatus } = TopicApi.getTopicBySearch(
+    { id },
+    (data) => {
+      setTitle(data.title);
+      setDescription(data.description);
+    },
+    {
+      initialData: () => {
+        const _data = (queryClient.getQueryData(TopicKey.TOPIC_LIST(Number(page), '')) as TopicResponse)?.data?.find(
+          (item) => item.id === id,
+        );
+        console.log('KEY', TopicKey.TOPIC_LIST(Number(page), ''));
+        console.log('initialData', _data);
+        if (_data) {
+          return {
+            data: _data,
+          };
+        } else {
+          return undefined;
+        }
+      },
+    },
+  );
 
   const editMutation = TopicApi.editTopic(
     () => {
       router.push('/');
-      queryClient.invalidateQueries(['topicList']);
+      queryClient.invalidateQueries(TopicKey.TOPIC_LIST(1, ''));
     },
     (err) => {
       console.log('useMutation err', err);

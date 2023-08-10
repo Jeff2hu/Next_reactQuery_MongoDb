@@ -5,19 +5,39 @@ import Select from '@/components/client/Select';
 import TopicList from '@/components/client/TopicList';
 import { AuthorApi } from '@/protocol/author/AuthorApi';
 import { TopicApi } from '@/protocol/topic/TopicApi';
-import { QueryOptions } from '@tanstack/react-query';
+import { TopicKey } from '@/protocol/topic/TopicKey';
+import { QueryOptions, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export default function Home() {
+  const queryClient = useQueryClient();
+
   const [page, setPage] = useState<number>(1);
   const [selectedAuthor, setSelectedAuthor] = useState<string>('');
 
   const { data: authorData, ...authorStatus } = AuthorApi.getAuthors({ refetchOnMount: false } as QueryOptions);
-  const { data: topicData, ...topicStatus } = TopicApi.getTopics({
-    page: page,
-    pageSize: 2,
-    ...(selectedAuthor && { authorId: selectedAuthor }),
-  });
+  const {
+    result: { data: topicData, ...topicStatus },
+    getTopicList,
+  } = TopicApi.getTopics(
+    {
+      page: page,
+      pageSize: 2,
+      ...(selectedAuthor && { authorId: selectedAuthor }),
+    },
+    {
+      onSuccess: (_data: TopicResponse) => {
+        if (page === _data?.maxPage) return;
+        queryClient.prefetchQuery(TopicKey.TOPIC_LIST(page + 1, selectedAuthor), () =>
+          getTopicList({
+            page: page + 1,
+            pageSize: 2,
+            ...(selectedAuthor && { authorId: selectedAuthor }),
+          }),
+        );
+      },
+    } as QueryOptions,
+  );
 
   return (
     <div className="flex flex-col gap-2">
@@ -38,12 +58,15 @@ export default function Home() {
               <Select
                 options={[{ text: 'Please Select - - -', value: '' }, ...authorData]}
                 value={selectedAuthor}
-                onChange={(_value: string) => setSelectedAuthor(_value)}
+                onChange={(_value: string) => {
+                  setPage(1);
+                  setSelectedAuthor(_value);
+                }}
                 placeholder="placeholder..."
               />
             </div>
           )}
-          {topicData && topicData.data?.map((item) => <TopicList data={item} key={item.id} />)}
+          {topicData && topicData.data?.map((item) => <TopicList data={item} key={item.id} page={page} />)}
         </div>
       )}
       {topicData && (
