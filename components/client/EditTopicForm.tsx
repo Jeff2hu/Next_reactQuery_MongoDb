@@ -36,22 +36,22 @@ const EditTopicForm = ({ id, page }: Props) => {
       setTitle(data.title);
       setDescription(data.description);
     },
-    {
-      initialData: () => {
-        const _data = (queryClient.getQueryData(TopicKey.TOPIC_LIST(Number(page), '')) as TopicResponse)?.data?.find(
-          (item) => item.id === id,
-        );
-        console.log('KEY', TopicKey.TOPIC_LIST(Number(page), ''));
-        console.log('initialData', _data);
-        if (_data) {
-          return {
-            data: _data,
-          };
-        } else {
-          return undefined;
-        }
-      },
-    },
+    // {
+    //   initialData: () => {
+    //     const _data = (queryClient.getQueryData(TopicKey.TOPIC_LIST(Number(page), '')) as TopicResponse)?.data?.find(
+    //       (item) => item.id === id,
+    //     );
+    //     console.log('KEY', TopicKey.TOPIC_LIST(Number(page), ''));
+    //     console.log('initialData', _data);
+    //     if (_data) {
+    //       return {
+    //         data: _data,
+    //       };
+    //     } else {
+    //       return undefined;
+    //     }
+    //   },
+    // },
   );
 
   const editMutation = TopicApi.editTopic(

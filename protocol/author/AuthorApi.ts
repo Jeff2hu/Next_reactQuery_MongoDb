@@ -20,15 +20,15 @@ export class AuthorApi {
         }
       },
       {
-        select: (data: AuthorData[] | undefined) => {
+        select: (data: unknown) => {
           if (!data) return undefined;
           else
-            return data.reduce<Dropdown[]>(
+            return (data as AuthorData[]).reduce<Dropdown[]>(
               (acc: any, cur: AuthorData) => [...acc, { text: cur.name, value: cur.id }],
               [] as Dropdown[],
             );
         },
-        ...(options && { options }),
+        ...options,
       },
     );
     return result;

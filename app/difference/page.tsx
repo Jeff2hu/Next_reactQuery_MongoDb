@@ -8,7 +8,7 @@ import { memo, useState } from 'react';
 const Difference = () => {
   const [selectedFirstAuthor, setSelectedFirstAuthor] = useState<string>('');
   const [selectedSecondAuthor, setSelectedSecondAuthor] = useState<string>('');
-  const { data: authorData, ...authorStatus } = AuthorApi.getAuthors({ refetchOnMount: false } as QueryOptions);
+  const { data: authorData, ...authorStatus } = AuthorApi.getAuthors({ refetchOnWindowFocus: false } as QueryOptions);
   const { data: houseData, ...houseStatus } = DifferenceApi.getHouses(
     {
       firstAuthorId: selectedFirstAuthor,

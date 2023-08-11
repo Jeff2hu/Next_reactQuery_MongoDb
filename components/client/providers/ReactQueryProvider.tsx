@@ -1,7 +1,6 @@
 'use client';
 
 import AlertDialogDemo from '@/components/client/Alert';
-import { queryClientOptions } from '@/utils/constatns';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -10,7 +9,8 @@ interface Props {
 }
 
 const ReactQueryProvider = ({ children }: Props) => {
-  const [queryClient] = useState(() => new QueryClient(queryClientOptions));
+  // queryClientOptions
+  const [queryClient] = useState(() => new QueryClient());
   return (
     <QueryClientProvider client={queryClient}>
       <AlertDialogDemo />
